@@ -1,6 +1,6 @@
 # peerbadge-protocol
 
-Rust-facing implementation of the PeerBadge protocol for issuing, holding, verifying, and revoking privacy-preserving credentials with partially blind RSA signatures.
+Rust-facing implementation of the [PeerBadge protocol](https://peerbadge.org/) for issuing, holding, verifying, and revoking privacy-preserving credentials with partially blind RSA signatures.
 
 This crate owns the protocol-sensitive pieces: issuer and holder key handling, holder blinding, issuer partial blind signing, holder finalization, holder authorization signing, credential verification, signed issuer metadata, signed revocations, canonicalization, and typed error handling.
 

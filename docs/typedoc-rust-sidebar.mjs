@@ -63,12 +63,12 @@ const PROJECT_OVERVIEW = `
   <ul>
     <li>
       <a href="rust/peerbadge_protocol/index.html"><code>peerbadge-protocol</code></a>
-      implements issuance, verification, canonicalization, and revocation for
-      the PeerBadge protocol.
+      implements issuance, verification, canonicalization, and revocation for the
+      <a href="https://peerbadge.org/">PeerBadge protocol</a>.
     </li>
     <li>
       <a href="rust/peerbadge_wasm/index.html"><code>peerbadge-wasm</code></a>
-      exposes the PeerBadge protocol through wasm-bindgen.
+      exposes the <a href="https://peerbadge.org/">PeerBadge protocol</a> through wasm-bindgen.
     </li>
     <li>
       <a href="${NPM_MODULE_PAGE}"><code>${NPM_MODULE_DISPLAY_NAME}</code></a>
