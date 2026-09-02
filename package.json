@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/fedibtc/peerbadge-sdk"
   },
-  "homepage": "https://docs.peerbadge.org",
+  "homepage": "https://fedibtc.github.io/peerbadge-sdk/",
   "bugs": {
     "url": "https://github.com/fedibtc/peerbadge-sdk/issues"
   },
@@ -29,7 +29,7 @@
     "format": "biome format --write vitest.config.ts vitest.browser.config.ts test",
     "format:check": "biome format vitest.config.ts vitest.browser.config.ts test",
     "format:pkg": "biome format --write --vcs-enabled=false pkg",
-    "metadata:pkg": "npm pkg set repository.type=git repository.url=git+https://github.com/fedibtc/peerbadge-sdk.git homepage=https://docs.peerbadge.org bugs.url=https://github.com/fedibtc/peerbadge-sdk/issues --prefix pkg && npm pkg set name=@fedibtc/peerbadge-sdk-wasm --prefix pkg",
+    "metadata:pkg": "npm pkg set repository.type=git repository.url=git+https://github.com/fedibtc/peerbadge-sdk.git homepage=https://fedibtc.github.io/peerbadge-sdk/ bugs.url=https://github.com/fedibtc/peerbadge-sdk/issues --prefix pkg && npm pkg set name=@fedibtc/peerbadge-sdk-wasm --prefix pkg",
     "lint": "biome lint vitest.config.ts vitest.browser.config.ts test",
     "typecheck": "tsc -p tsconfig.json",
     "test:rust": "cargo test --workspace",

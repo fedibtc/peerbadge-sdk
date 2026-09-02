@@ -11,8 +11,8 @@ version = "0.1.0-rc.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/fedibtc/peerbadge-sdk"
-homepage = "https://docs.peerbadge.org"
-documentation = "https://docs.peerbadge.org"
+homepage = "https://fedibtc.github.io/peerbadge-sdk/"
+documentation = "https://fedibtc.github.io/peerbadge-sdk/"
 readme = "README.md"
 
 [workspace.dependencies]

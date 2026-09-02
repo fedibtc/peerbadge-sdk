@@ -6,7 +6,7 @@ The library is intended to own the protocol-sensitive pieces of credential issua
 
 It deliberately does not own app concerns such as browser storage, QR codes, Nostr relay I/O, HTTP fetching, UI state, subject-key custody, verifier policy, or revocation list refresh jobs.
 
-Documentation is available at [docs.peerbadge.org](https://docs.peerbadge.org). The source repository is [`fedibtc/peerbadge-sdk`](https://github.com/fedibtc/peerbadge-sdk).
+Documentation is available at [fedibtc.github.io/peerbadge-sdk](https://fedibtc.github.io/peerbadge-sdk/). The source repository is [`fedibtc/peerbadge-sdk`](https://github.com/fedibtc/peerbadge-sdk).
 
 The generated npm package is `@fedibtc/peerbadge-sdk-wasm`. In this repository, tests import from the generated `pkg/peerbadge_wasm.js` file after `pnpm run build`.
 

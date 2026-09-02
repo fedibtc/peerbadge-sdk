@@ -61,7 +61,7 @@ jobs:
 
     environment:
       name: github-pages
-      url: https://docs.peerbadge.org
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Deploy to GitHub Pages
