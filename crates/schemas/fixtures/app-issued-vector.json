@@ -1,0 +1,37 @@
+{
+    "issuer_authority": {
+        "version": 1,
+        "issuer": {
+            "issuer_id_pubkey": "edf91ee8ef705ad30cdbffffe86cd1fb08a6114178ed998f7a5ad52e25a67f97",
+            "issuance_key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwENRMLzlBb5UlNL78K0RbGaBbbMFEtZHadM8aZkhdXJWyrabmNk15IUrDlzLQMtgotrQkNf26r4obd6WE7hdipARWv9JWzV39fo1W43JL1oY1X0KEzVJ_UM71D0JJUgRKJBF4B474SOLwEmglkrZezrORX2VujCewjzbki6LriKCPWlk6ZT9vjw-AwvZMz97EQUroFb8egoD4zwqvU9XkM8udhHdfG6WNCCoLwZCp53No9ibrwxDUQ19isSx46cpgyYazAv6Uk8Up1DDp3KM3cPhyOxNSO7efYFol89EvFJOZKJtjUtseEFJBSo6cUMGq7qQDm1IbZw2i4wq7M8m8QIDAQAB",
+            "revocation": [
+                {
+                    "protocol": "nostr",
+                    "location": "wss://nostr-rs-relay.dev.fedibtc.com"
+                },
+                {
+                    "protocol": "nostr",
+                    "location": "wss://relay.damus.io/"
+                }
+            ]
+        },
+        "proof": {
+            "signature": "fh3CXDv63TbkxX1jzBbPJS6dLhxEt9S4KdA_8umDtVHxFr4de6UCAfDO9BruOafNkqlNAqTXKTib33E5Jazy3w"
+        }
+    },
+    "signed_credential": {
+        "version": 1,
+        "credential": {
+            "issuer_id_pubkey": "edf91ee8ef705ad30cdbffffe86cd1fb08a6114178ed998f7a5ad52e25a67f97",
+            "info": {
+                "schema": "fedi-trust-score-v1.0",
+                "trust_level": 9
+            },
+            "blind_msg": "4f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa"
+        },
+        "proof": {
+            "signature": "RPj7seLFqO147OMliCTfjEJgeEQ7-XZPQhayv4dsZHYA7yIDrFtlAPwUoSh2YAS9k_Ew3BneypE5TQUS05mOHKDNe_tkr9Z4ktetTrS8UQ3dZEhyIZzJZV3Nho1yRhY3Yi4KQYNABFKjJ1aUQfwxj7QQcfg0bJwV04QJna_1SSjdBXLNMAN3gQyWsy034KdRghD6Kjhx98lGPLwRZ9ROnf5R_cVbKAM2Sno4O3o5XDyUefl7jneUvKatPCeWkqvbP-vGS0vDcVvLTJPbMUMKwpmggsy0EsCNw9mI4GDMuIG3kWSLUE8L7UQqu1Fnufx5f-sh4gAuRReS072PpkY1kA"
+        }
+    },
+    "holder_pubkey": "4f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa"
+}

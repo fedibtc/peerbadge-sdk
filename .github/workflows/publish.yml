@@ -1,0 +1,105 @@
+name: Publish PeerBadge SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to publish, without a leading v
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish PeerBadge SDK npm package
+    runs-on: ubuntu-latest
+
+    environment: npm-publish
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Require master branch
+        env:
+          RELEASE_REF: ${{ github.ref }}
+        run: |
+          if [[ "$RELEASE_REF" != "refs/heads/master" ]]; then
+            echo "Releases must run from master. Current ref: $RELEASE_REF"
+            exit 1
+          fi
+
+      - name: Check source versions
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          root_version="$(jq -r .version package.json)"
+          workspace_version="$(sed -n '/^\[workspace.package\]/,/^\[/s/^version = "\([^"]*\)"/\1/p' Cargo.toml)"
+
+          if [[ "$root_version" != "$EXPECTED_VERSION" ]]; then
+            echo "package.json has version $root_version. Expected $EXPECTED_VERSION."
+            exit 1
+          fi
+
+          if [[ "$workspace_version" != "$EXPECTED_VERSION" ]]; then
+            echo "Cargo.toml has version $workspace_version. Expected $EXPECTED_VERSION."
+            exit 1
+          fi
+
+      - name: Set up Node.js for trusted publishing
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31
+        with:
+          install_url: https://releases.nixos.org/nix/nix-2.29.0/install
+
+      - name: Use devenv binary cache
+        uses: cachix/cachix-action@3ba601ff5bbb07c7220846facfa2cd81eeee15a1 # v16
+        with:
+          name: devenv
+
+      - name: Install devenv
+        run: nix profile install nixpkgs#devenv
+
+      - name: Install JavaScript dependencies
+        run: devenv shell -- pnpm install --frozen-lockfile
+
+      - name: Run checks
+        run: devenv shell -- pnpm run check
+
+      - name: Check generated package
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          package_name="$(jq -r .name pkg/package.json)"
+          package_version="$(jq -r .version pkg/package.json)"
+
+          if [[ "$package_name" != "@fedibtc/peerbadge-sdk-wasm" ]]; then
+            echo "Generated package has unexpected name: $package_name"
+            exit 1
+          fi
+
+          if [[ "$package_version" != "$EXPECTED_VERSION" ]]; then
+            echo "Generated package has version $package_version. Expected $EXPECTED_VERSION."
+            exit 1
+          fi
+
+          if npm view "$package_name@$package_version" version >/dev/null 2>&1; then
+            echo "$package_name@$package_version already exists on npm."
+            exit 1
+          fi
+
+      - name: Publish package
+        run: npm publish ./pkg --access public

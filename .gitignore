@@ -1,0 +1,25 @@
+# Devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
+
+# Rust
+/target
+
+# Node
+/node_modules
+/dist
+/*.tgz
+
+# wasm-pack
+/pkg
+
+/.conductor
+/.codex
+/.notion

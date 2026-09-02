@@ -1,0 +1,7 @@
+.devenv*
+.direnv
+devenv.local.nix
+devenv.local.yaml
+node_modules
+target
+*.tgz

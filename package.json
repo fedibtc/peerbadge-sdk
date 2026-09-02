@@ -1,0 +1,70 @@
+{
+  "name": "@fedibtc/peerbadge-sdk",
+  "private": true,
+  "version": "0.1.0-rc.0",
+  "description": "WebAssembly bindings for the PeerBadge protocol.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fedibtc/peerbadge-sdk"
+  },
+  "homepage": "https://docs.peerbadge.org",
+  "bugs": {
+    "url": "https://github.com/fedibtc/peerbadge-sdk/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "pnpm run build:wasm",
+    "build:wasm": "rm -rf pkg && wasm-pack build crates/wasm --scope fedibtc --target bundler --out-dir ../../pkg --no-opt --dev -- --profile wasm-speed && wasm-opt -O3 -o pkg/peerbadge_wasm_bg.wasm pkg/peerbadge_wasm_bg.wasm && rm -f pkg/.gitignore && pnpm run metadata:pkg && pnpm run format:pkg",
+    "build:wasm:speed": "pnpm run build:wasm",
+    "build:wasm:sys-rng": "rm -rf pkg && wasm-pack build crates/wasm --scope fedibtc --target bundler --out-dir ../../pkg --no-opt --dev --features sys-rng -- --profile wasm-speed && wasm-opt -O3 -o pkg/peerbadge_wasm_bg.wasm pkg/peerbadge_wasm_bg.wasm && rm -f pkg/.gitignore && pnpm run metadata:pkg && pnpm run format:pkg",
+    "clean": "rm -rf dist pkg target",
+    "check": "pnpm run format:check && pnpm run lint && pnpm run test",
+    "docs": "pnpm run docs:api && pnpm run docs:rust && pnpm run docs:rust:copy",
+    "docs:api": "pnpm run build && typedoc",
+    "docs:rust": "cargo doc --workspace --no-deps",
+    "docs:rust:copy": "rm -rf dist/docs/api/rust && mkdir -p dist/docs/api/rust && cp -R target/doc/. dist/docs/api/rust/",
+    "docs:serve": "pnpm run docs && vite dist/docs/api --host 127.0.0.1",
+    "format": "biome format --write vitest.config.ts vitest.browser.config.ts test",
+    "format:check": "biome format vitest.config.ts vitest.browser.config.ts test",
+    "format:pkg": "biome format --write --vcs-enabled=false pkg",
+    "metadata:pkg": "npm pkg set repository.type=git repository.url=git+https://github.com/fedibtc/peerbadge-sdk.git homepage=https://docs.peerbadge.org bugs.url=https://github.com/fedibtc/peerbadge-sdk/issues --prefix pkg && npm pkg set name=@fedibtc/peerbadge-sdk-wasm --prefix pkg",
+    "lint": "biome lint vitest.config.ts vitest.browser.config.ts test",
+    "typecheck": "tsc -p tsconfig.json",
+    "test:rust": "cargo test --workspace",
+    "test:ts": "pnpm run typecheck && vitest run --testTimeout 30000",
+    "test:keygen:rust": "cargo test --release -p peerbadge-protocol issuer_context_generate_reports_rsa_keygen_timing -- --ignored --nocapture",
+    "test:keygen:rust:concurrent": "RSA_KEYGEN_RUNS=10 RSA_KEYGEN_CONCURRENT=1 cargo test --release -p peerbadge-protocol issuer_context_generate_reports_rsa_keygen_timing -- --ignored --nocapture",
+    "test:keygen:ts": "pnpm run build && pnpm run typecheck && RUN_RSA_KEYGEN_TESTS=1 vitest run test/keygen.test.ts --testTimeout 1200000 --reporter verbose",
+    "test:keygen:ts:concurrent": "pnpm run build && pnpm run typecheck && RUN_RSA_KEYGEN_TESTS=1 RSA_KEYGEN_RUNS=10 RSA_KEYGEN_CONCURRENT=1 RSA_KEYGEN_TIMEOUT_MS=3600000 vitest run test/keygen.test.ts --testTimeout 3600000 --reporter verbose",
+    "test:keygen:browser": "pnpm run build && pnpm run typecheck && vitest --config vitest.browser.config.ts run test/keygen.browser.test.ts --testTimeout 1200000 --reporter verbose",
+    "test:keygen:browser:concurrent": "pnpm run build && pnpm run typecheck && VITE_RSA_KEYGEN_CONCURRENT_WORKERS=10 VITE_RSA_KEYGEN_TIMEOUT_MS=3600000 vitest --config vitest.browser.config.ts run test/keygen.browser.test.ts --testTimeout 3600000 --reporter verbose",
+    "test:keygen": "pnpm run test:keygen:rust && pnpm run test:keygen:ts",
+    "test:keygen:concurrent": "pnpm run test:keygen:rust:concurrent && pnpm run test:keygen:ts:concurrent",
+    "test": "pnpm run build && pnpm run test:rust && pnpm run test:ts",
+    "pack": "pnpm run build && wasm-pack pack --pkg-dir pkg",
+    "publish": "pnpm run build && npm publish ./pkg --access public",
+    "publish:dry-run": "pnpm run build && npm publish ./pkg --access public --dry-run"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.10",
+    "@vitest/browser-playwright": "^4.1.11",
+    "esbuild": "^0.28.2",
+    "mermaid": "^11.17.1",
+    "playwright": "^1.62.1",
+    "rollup": "^4.62.5",
+    "typedoc": "^0.28.20",
+    "typedoc-theme-oxide": "^0.3.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.2",
+    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-wasm": "^3.6.0",
+    "vitest": "^4.1.11"
+  },
+  "pnpm": {
+    "overrides": {
+      "uuid@10": ">=11.1.1"
+    }
+  }
+}

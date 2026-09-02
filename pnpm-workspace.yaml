@@ -1,0 +1,8 @@
+# pnpm 11 fails `pnpm install --frozen-lockfile` with ERR_PNPM_IGNORED_BUILDS
+# unless there is an explicit decision for every dependency build script.
+# @swc/core and esbuild get their native binaries from optional dependencies
+# in the lockfile; their postinstall scripts are only a fallback download
+# path, so keep them blocked.
+allowBuilds:
+  '@swc/core': false
+  esbuild: false

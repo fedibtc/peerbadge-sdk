@@ -1,0 +1,53 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["pkg/peerbadge_wasm.d.ts"],
+  "plugin": ["typedoc-theme-oxide", "./docs/typedoc-rust-sidebar.mjs"],
+  "theme": "oxide",
+  "readme": "README.md",
+  "projectDocuments": [
+    "docs/quickstart.md",
+    "docs/guides/issue-a-credential.md",
+    "docs/guides/persist-pending-issuance.md",
+    "docs/guides/verify-a-credential.md",
+    "docs/guides/revoke-a-credential.md",
+    "docs/guides/import-and-export-issuer-keys.md",
+    "docs/guides/import-and-export-holder-keys.md",
+    "docs/guides/handle-thrown-javascript-errors.md",
+    "docs/guides/choose-info-vs-blind-msg.md",
+    "docs/guides/integrate-transport-outside-sdk.md",
+    "docs/architecture.md",
+    "docs/protocol-flow.md",
+    "docs/verification-and-revocation.md",
+    "docs/rust-api.md"
+  ],
+  "basePath": ".",
+  "name": "PeerBadge SDK",
+  "includeVersion": true,
+  "out": "dist/docs/api",
+  "customCss": "docs/typedoc-custom.css",
+  "customJs": "docs/typedoc-mermaid.js",
+  "navigationLinks": {
+    "fedibtc/peerbadge-sdk": "https://github.com/fedibtc/peerbadge-sdk",
+    "npm": "https://www.npmjs.com/package/@fedibtc/peerbadge-sdk-wasm"
+  },
+  "sidebarLinks": {
+    "fedibtc/peerbadge-sdk": "https://github.com/fedibtc/peerbadge-sdk",
+    "npm": "https://www.npmjs.com/package/@fedibtc/peerbadge-sdk-wasm"
+  },
+  "highlightLanguages": [
+    "bash",
+    "json",
+    "jsx",
+    "mermaid",
+    "rust",
+    "sh",
+    "toml",
+    "ts"
+  ],
+  "searchInComments": true,
+  "searchInDocuments": true,
+  "validation": {
+    "invalidPath": false
+  },
+  "suppressCommentWarningsInDeclarationFiles": true
+}

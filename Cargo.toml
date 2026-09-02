@@ -1,0 +1,31 @@
+[workspace]
+members = [
+    "crates/protocol",
+    "crates/schemas",
+    "crates/wasm",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0-rc.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/fedibtc/peerbadge-sdk"
+homepage = "https://docs.peerbadge.org"
+documentation = "https://docs.peerbadge.org"
+readme = "README.md"
+
+[workspace.dependencies]
+peerbadge-protocol = { path = "crates/protocol", version = "0.1.0-rc.0" }
+peerbadge-schemas = { path = "crates/schemas", version = "0.1.0-rc.0" }
+
+[profile.release]
+opt-level = "s"
+
+[profile.wasm-speed]
+inherits = "release"
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+debug = false

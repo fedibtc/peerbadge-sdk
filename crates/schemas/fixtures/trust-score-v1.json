@@ -1,0 +1,53 @@
+{
+  "issuer_secret_keys": {
+    "issuer_id_secret_key": "f51732c4fc602b2f70bfa7f78bab0a40908357f97ba4a573225d6ce2cbd69687",
+    "issuance_secret_key": "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDAaXuFLE9Xw3yqjL2MriXENRYJRWLMfgj5U9WQUMcGg5-zUNcVY8ma6uIz63H8camgI-1cslYPGbfkODBvdiZttsPvRDXdLWKtAKW0t5VsnjrQ--I99aMqEBtQsOKJtxLwqxuovEJzAqtOsHSdGGYi40P-KfgaJ8nDvYWt7RlhDbL5sLTh7XQCRb4ZjFO2WCRUMrq3U9u_pG12y4SutT1MKQYpveCqI78gYHcKo8G3b9cnWyfUeZ77waDx01Dp9yH-6hfmb_p_DONw6jPuAaYxqnlbalPZ14esuhwnrDn5hAH36sOh6Hw8tFJB_MlbTYEPNHZ5K_lbtIWYlVH0suGpAgMBAAECggEAA7_KbVzgqugfPL-DTgNyrvEN3d5hP3TRPfJ5PdelGSZlbTwNBNit6_vZroNO9ElOsdUhYeYDsUWiBKtnnjRiKU8fYEEm_4lL2-0gTXYqTjSDFuFhli18IWyw65CWyXIsx02-Ozp33P_XULA1hX4dN17QS1qMAA54avz9Ztcw4Gg4RFipRt-YolGGB3dRnihdWRxecM-guvZl68h1ci_2oGEfYVSzVI49ts76bR7KBvggIJgZ0mUJO6IVutNPh43I3Zz0-a01hWFQ5ueNYUtYrlObHpoxZvg0hc41j9Ad8LF_hZ6V1OJqfcxkn5eYel0G0jKCyjsU4BUBMU7vhipDtQKBgQDp0rQARHDJEExNh6mBvekLCilxxmW1pf4aegjRXIxRu66azGF1XgzHJPxEDfb93OofxtkWRx7NhC0EW9EDV6iGnGg__z0zXgOYq8xk4eqRik1on0YmM5Cb-h2Ry1WkaVRuW-3KH6C9o3N3VppPpabzqiKfj4Z0UjA8bGVFU0KXUwKBgQDSqU6SoOugVmDP_t8x5mUso7P5hN0AF9HZd184tE7YpsfZVOzTSivDcu7gkvvry6gtgorOS6EOrT4i6zNY0zJBse3HVmwSlotXJ6gTcC3wbyypptQwn72ACxKLKHsehaxtGHVd2aKut_LJrpkwi9oJPYK04nSVcWJZ8wcv5KNvkwKBgQDH5oBHHjwCWXGycsIDDrZW3tgx0fkQhBoqzpwNSX8ZPUh4RTUo30AzXTZihEHeJWjvw9PCjQkTkOXfrROTNPT6KGukEvVingSbGH1E3jPpO4EUad7SOBFwmDOBeoH8bqRlOSihPcrxdfT4WMzSPP_vn0u8eDrt5XohnlYyH411ywKBgQCyBpJ4J7X4kgbOv70vFl16E_4MZ9O8OGUHOnImIXpgbNGHQNXC2XOSgJaPAqgS5NEDZMaZACDjnlRcfheugQx_qDYht08thjvLM6A-jRbFka5U0L-RN-2VP8Y0A8nISX8l0v2cikeJD7sF5Z9f_1ALbwf-hUGw6VkMWu0_9CCKMQKBgDWsU3rYC8hOm7JC8Jg3N-3qnOqvf3TKHNf4jUxwpQdTBaEOwcNcse-tWnFx522C8zg3jgGO0V_q0icwOYa39XDBD2B-FyFUx40jIBReu0q7K30oNVj0RdOfPBbfX3Xzkieu6GdlpR2s8EMxKS43UwBVj14ukr5wQZdGf76Dz5MV"
+  },
+  "holder_secret_key": "dd0e1e4f50be6bfd59f6ab555cc29f421d5c837b429b507bddb049354d238412",
+  "issuer_authority": {
+    "version": 1,
+    "issuer": {
+      "issuer_id_pubkey": "8df31bee16d9ad0701514cbf2a6cb5c5cc9ebc2d70fed74fea8adaef599a9fcf",
+      "issuance_key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwGl7hSxPV8N8qoy9jK4lxDUWCUVizH4I-VPVkFDHBoOfs1DXFWPJmuriM-tx_HGpoCPtXLJWDxm35Dgwb3YmbbbD70Q13S1irQCltLeVbJ460PviPfWjKhAbULDiibcS8KsbqLxCcwKrTrB0nRhmIuND_in4GifJw72Fre0ZYQ2y-bC04e10AkW-GYxTtlgkVDK6t1Pbv6RtdsuErrU9TCkGKb3gqiO_IGB3CqPBt2_XJ1sn1Hme-8Gg8dNQ6fch_uoX5m_6fwzjcOoz7gGmMap5W2pT2deHrLocJ6w5-YQB9-rDoeh8PLRSQfzJW02BDzR2eSv5W7SFmJVR9LLhqQIDAQAB",
+      "revocation": [
+        {
+          "protocol": "nostr",
+          "location": "wss://nostr-rs-relay.dev.fedibtc.com"
+        },
+        {
+          "protocol": "nostr",
+          "location": "wss://relay.damus.io/"
+        }
+      ]
+    },
+    "proof": {
+      "signature": "F_QuxR_VSRvNHD2-9l8E6ncfAo0yZpobFZ9wLis-InAu99ohTKaISXmR7q1oLUdPdMcWTGrDJi64PBBdGkR6NQ"
+    }
+  },
+  "signed_credential": {
+    "version": 1,
+    "credential": {
+      "issuer_id_pubkey": "8df31bee16d9ad0701514cbf2a6cb5c5cc9ebc2d70fed74fea8adaef599a9fcf",
+      "info": {
+        "schema": "fedi-trust-score-v1.0",
+        "trust_level": 9
+      },
+      "blind_msg": "ed1a95ddf4daa663b40ef6655d7c2fd3cb2d393827fdd16dcfd66f1753007d9a"
+    },
+    "proof": {
+      "signature": "cOqmGkDRf02lAsLpddGu9qSWv3m1OQGdEUocnIR68EZ8QbJkor3JNNaIwdzdCm0m-_aQSGcnergggQKdkrC_J94QUN6iwFCI6iBer4L906ZubyDc8okRPw4jEo360-5iFrDFN00wwua3CQrIVPZtSp9uY_PW5BizKcpJ4E5w2OfPiM5HIW1cbEeu7z5yXd_kop05ZxDTqRr02BV4BVDjF0mowv8vWeIkFfM759ojRQ502CffxJurpc03X7HMGQKgEWFS7kGy6MH0YwC6YIKoUiIKKuj3yonvldwkuFjX3NyV-zfm7lm1nVbZ_2Sh3EVBJ9_ApASn3g7Ee9bA79QKzA"
+    }
+  },
+  "holder_authorization": {
+    "version": 1,
+    "authorization": {
+      "holder_id_pubkey": "ed1a95ddf4daa663b40ef6655d7c2fd3cb2d393827fdd16dcfd66f1753007d9a",
+      "subject_pubkey": "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5",
+      "credential_digest": "QK-voxaw9juOY7kZRJVcpWqi7hJP_Q33pAeto-Kg8NM",
+      "issued_at": 1754784000
+    },
+    "proof": {
+      "signature": "FGoFzyxzLZgShOBtdrkBe3QbMEyYWbSTikoV2bn_mXfwUBG44vU4t87eON9l2pgyCwsfr1ZM6po_K2Pd1YQyKQ"
+    }
+  }
+}

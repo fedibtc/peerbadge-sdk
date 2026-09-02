@@ -1,0 +1,17 @@
+[package]
+name = "peerbadge-schemas"
+version.workspace = true
+edition.workspace = true
+description = "First-party credential schemas for the schema-agnostic PeerBadge protocol."
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+readme = "README.md"
+
+[dependencies]
+peerbadge-protocol.workspace = true
+nostr = "0.44.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
