@@ -1,6 +1,6 @@
 # PeerBadge SDK
 
-WebAssembly bindings for the PeerBadge protocol, built on partially blind RSA verifiable credentials.
+WebAssembly bindings for the [PeerBadge protocol](https://peerbadge.org/), built on partially blind RSA verifiable credentials.
 
 The library is intended to own the protocol-sensitive pieces of credential issuance and verification: holder blinding, issuer partial blind signing, holder finalization, holder authorization signing, runtime validation, and the WASM/TypeScript API surface around those operations.
 
