@@ -1109,7 +1109,7 @@ dependencies = [
 
 [[package]]
 name = "peerbadge-protocol"
-version = "0.1.0-rc.0"
+version = "0.1.0"
 dependencies = [
  "blind-rsa-signatures",
  "hex",
@@ -1126,7 +1126,7 @@ dependencies = [
 
 [[package]]
 name = "peerbadge-schemas"
-version = "0.1.0-rc.0"
+version = "0.1.0"
 dependencies = [
  "nostr",
  "peerbadge-protocol",
@@ -1137,7 +1137,7 @@ dependencies = [
 
 [[package]]
 name = "peerbadge-wasm"
-version = "0.1.0-rc.0"
+version = "0.1.0"
 dependencies = [
  "getrandom 0.4.2",
  "js-sys",
