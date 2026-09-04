@@ -7,7 +7,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0-rc.0"
+version = "0.1.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/fedibtc/peerbadge-sdk"
@@ -16,8 +16,8 @@ documentation = "https://fedibtc.github.io/peerbadge-sdk/"
 readme = "README.md"
 
 [workspace.dependencies]
-peerbadge-protocol = { path = "crates/protocol", version = "0.1.0-rc.0" }
-peerbadge-schemas = { path = "crates/schemas", version = "0.1.0-rc.0" }
+peerbadge-protocol = { path = "crates/protocol", version = "0.1.0" }
+peerbadge-schemas = { path = "crates/schemas", version = "0.1.0" }
 
 [profile.release]
 opt-level = "s"
