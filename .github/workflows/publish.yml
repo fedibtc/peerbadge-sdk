@@ -101,5 +101,5 @@ jobs:
             exit 1
           fi
 
-      - name: Publish package
-        run: npm publish ./pkg --access public
+      - name: Stage package for publication
+        run: npm stage publish ./pkg --access public

@@ -264,14 +264,16 @@ Useful scripts:
 
 ## Publishing to npm
 
-Publish `@fedibtc/peerbadge-sdk-wasm` with the **Publish PeerBadge SDK** GitHub Actions workflow. The workflow uses npm trusted publishing, so it does not require an npm token.
+Publish `@fedibtc/peerbadge-sdk-wasm` with the **Publish PeerBadge SDK** GitHub Actions workflow. The workflow uses npm trusted publishing, so it does not require an npm token. The trusted publisher is configured for staged publishing only: the workflow uploads the package to the npm staging queue, and a package maintainer must approve it with 2FA before the version goes live.
 
 1. Set the release version in `package.json` and under `[workspace.package]` in `Cargo.toml`. Do not add a leading `v`.
 2. Update the workspace dependency versions and `Cargo.lock` when the Cargo workspace version changes.
 3. Merge the version changes into `master`.
 4. Open **Actions > Publish PeerBadge SDK > Run workflow** in GitHub.
-5. Select `master`, enter the release version, and run the workflow.
+5. Select `master`, enter the release version, and run the workflow. An `npm-publish` environment reviewer must approve the deployment.
+6. Once the workflow succeeds, approve the staged version on npmjs.com (package > Staging) or from the CLI: `npm stage list @fedibtc/peerbadge-sdk-wasm` to get the stage id, then `npm stage approve <stage-id>` and enter the 2FA code when prompted. Use `npm stage download <stage-id>` to inspect the tarball first if needed.
+7. Confirm with `npm view @fedibtc/peerbadge-sdk-wasm@<version> version` and `npm dist-tag ls @fedibtc/peerbadge-sdk-wasm`.
 
-The workflow stops if the selected branch is not `master` or if either source version does not match the input. It installs the locked dependencies and runs `pnpm run check`. It then checks the generated package name and version. It also confirms that the version does not already exist on npm. If all checks pass, it publishes the public package from `pkg`.
+The workflow stops if the selected branch is not `master` or if either source version does not match the input. It installs the locked dependencies and runs `pnpm run check`. It then checks the generated package name and version. It also confirms that the version does not already exist on npm. If all checks pass, it stages the public package from `pkg`.
 
 Run `pnpm run publish:dry-run` inside `devenv shell` if you want to inspect the generated package before you start the workflow.
