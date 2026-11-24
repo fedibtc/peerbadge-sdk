@@ -261,11 +261,14 @@ describe("multi-signer issuance", () => {
     const restored = MultiSignerPendingIssuance.importState(
       pending.exportState(),
     );
-    const wrongMember = issuers[1].issueMultiSignerCredential(
+    const response = issuers[0].issueMultiSignerCredential(
       groupId,
       credentialInfo,
       request,
     );
+    // A response naming another member does not match the pending state.
+    // (Another member cannot sign this request: it was blinded for member 0's key.)
+    const wrongMember = { ...response, issuer_id: memberId(1) };
     expect(() =>
       MultiSignerPendingIssuance.importState(pending.exportState()).finalize(
         members[0],
@@ -273,10 +276,7 @@ describe("multi-signer issuance", () => {
       ),
     ).toThrow("issuer_id does not match");
 
-    const credential = restored.finalize(
-      members[0],
-      issuers[0].issueMultiSignerCredential(groupId, credentialInfo, request),
-    );
+    const credential = restored.finalize(members[0], response);
     expect(groupVerifier(1).verifyMultiSignerCredential(credential)).toBe(true);
     expect(() =>
       mergeMultiSignerCredentials(credential, signAs(1, { level: 9 })),

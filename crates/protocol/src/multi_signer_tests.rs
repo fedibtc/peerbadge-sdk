@@ -536,11 +536,15 @@ fn holder_finalize_checks_the_response() {
     let pending =
         MultiSignerPendingIssuance::import_state(&pending.export_state().unwrap()).unwrap();
 
-    // A different member answering the request does not match the pending state.
-    let wrong_member = member_1
+    let response = member_0
         .issuer
         .issue_multi_signer_credential(fixture.group_id.clone(), info(), &request)
         .unwrap();
+    // A response naming another member or another group does not match the
+    // pending state. (Another member cannot simply sign this request: it was
+    // blinded for member 0's modulus.)
+    let mut wrong_member = response.clone();
+    wrong_member.issuer_id = member_1.id();
     let wrong_group = member_0
         .issuer
         .issue_multi_signer_credential(
@@ -548,10 +552,6 @@ fn holder_finalize_checks_the_response() {
             info(),
             &request,
         )
-        .unwrap();
-    let response = member_0
-        .issuer
-        .issue_multi_signer_credential(fixture.group_id.clone(), info(), &request)
         .unwrap();
 
     let reimport =
