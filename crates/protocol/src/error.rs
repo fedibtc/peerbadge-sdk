@@ -30,4 +30,12 @@ pub enum CredentialsError {
     AuthorizationNotYetValid,
     #[error("verification failed")]
     VerificationFailed,
+    #[error("invalid multi-signer group: {0}")]
+    InvalidMultiSignerGroup(String),
+    #[error(
+        "multi-signer credential has {valid} valid member signatures, threshold is {threshold}"
+    )]
+    MultiSignerThresholdNotMet { valid: usize, threshold: usize },
+    #[error("multi-signer credentials do not match")]
+    MultiSignerCredentialMismatch,
 }

@@ -7,6 +7,7 @@
   "projectDocuments": [
     "docs/quickstart.md",
     "docs/guides/issue-a-credential.md",
+    "docs/guides/issue-a-multi-signer-credential.md",
     "docs/guides/persist-pending-issuance.md",
     "docs/guides/verify-a-credential.md",
     "docs/guides/revoke-a-credential.md",

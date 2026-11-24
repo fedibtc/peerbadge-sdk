@@ -14,8 +14,9 @@ use serde_json::Value;
 
 use crate::{
     canonicalize_pbrsa_info, CredentialsError, IssuanceRequest, IssuanceResponse, Issuer,
-    IssuerAuthority, IssuerId, IssuerSecretKeys, ProtocolV1, Revocation, RevocationLocation,
-    RevocationProof, SchnorrSignatureProof, SignedCredential, SignedRevocation,
+    IssuerAuthority, IssuerId, IssuerSecretKeys, MultiSignerIssuanceResponse, ProtocolV1,
+    Revocation, RevocationLocation, RevocationProof, SchnorrSignatureProof, SignedCredential,
+    SignedRevocation,
 };
 
 pub const ISSUER_MODULUS_BITS: usize = 2048;
@@ -241,14 +242,72 @@ impl IssuerContext {
         rng: &mut (impl blind_rsa_signatures::reexports::rsa::rand_core::TryCryptoRng + ?Sized),
     ) -> Result<IssuanceResponse, CredentialsError> {
         let issuer_id = self.issuer_id();
-        let metadata = canonicalize_pbrsa_info(ProtocolV1, &issuer_id, &info)?;
-        let secret_key = self.key_pair.derive_secret_key_for_metadata(&metadata)?;
+        let blind_signature = self.blind_sign_with_rng(&issuer_id, &info, request, rng)?;
         Ok(IssuanceResponse {
             version: ProtocolV1,
             issuer_id,
             info,
-            blind_signature: secret_key.blind_sign_with_rng(rng, &request.blinded_message)?,
+            blind_signature,
         })
+    }
+
+    /// Issue a blind signature as one member of a multi-signer group.
+    ///
+    /// The signature binds `group_id` instead of this issuer's own id, so the
+    /// finalized proof only verifies for a credential whose `issuer_id_pubkey`
+    /// is `group_id`. The response names this issuer as the member that signed.
+    /// Fails with [`CredentialsError::InvalidMultiSignerGroup`] when `group_id`
+    /// is this issuer's own id, which would make the signature an ordinary
+    /// single-issuer credential.
+    pub fn issue_multi_signer_credential(
+        &self,
+        group_id: IssuerId,
+        info: Value,
+        request: &IssuanceRequest,
+    ) -> Result<MultiSignerIssuanceResponse, CredentialsError> {
+        self.issue_multi_signer_credential_with_rng(
+            group_id,
+            info,
+            request,
+            &mut default_pbrsa_rng(),
+        )
+    }
+
+    pub(crate) fn issue_multi_signer_credential_with_rng(
+        &self,
+        group_id: IssuerId,
+        info: Value,
+        request: &IssuanceRequest,
+        rng: &mut (impl blind_rsa_signatures::reexports::rsa::rand_core::TryCryptoRng + ?Sized),
+    ) -> Result<MultiSignerIssuanceResponse, CredentialsError> {
+        let issuer_id = self.issuer_id();
+        if group_id == issuer_id {
+            return Err(CredentialsError::InvalidMultiSignerGroup(
+                "group id must differ from the member issuer id".to_owned(),
+            ));
+        }
+
+        let blind_signature = self.blind_sign_with_rng(&group_id, &info, request, rng)?;
+        Ok(MultiSignerIssuanceResponse {
+            version: ProtocolV1,
+            group_id,
+            issuer_id,
+            info,
+            blind_signature,
+        })
+    }
+
+    /// Blind-sign `request` under the per-metadata key for `credential_issuer_id` and `info`.
+    fn blind_sign_with_rng(
+        &self,
+        credential_issuer_id: &IssuerId,
+        info: &Value,
+        request: &IssuanceRequest,
+        rng: &mut (impl blind_rsa_signatures::reexports::rsa::rand_core::TryCryptoRng + ?Sized),
+    ) -> Result<blind_rsa_signatures::BlindSignature, CredentialsError> {
+        let metadata = canonicalize_pbrsa_info(ProtocolV1, credential_issuer_id, info)?;
+        let secret_key = self.key_pair.derive_secret_key_for_metadata(&metadata)?;
+        Ok(secret_key.blind_sign_with_rng(rng, &request.blinded_message)?)
     }
 
     /// Build and sign the revocation for a finalized credential issued by this issuer.

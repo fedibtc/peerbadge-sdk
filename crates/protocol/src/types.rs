@@ -384,6 +384,75 @@ pub struct IssuanceResponse {
     pub blind_signature: PbrsaBlindSignature,
 }
 
+/// Credential issued by several member issuers under one multi-signer group id.
+///
+/// `credential` is an ordinary [`Credential`] whose `issuer_id_pubkey` is the
+/// group id, so [`Credential::digest`] and holder authorizations work unchanged.
+/// Each proof is a PBRSA signature by one member issuer over that credential;
+/// verifiers decide how many trusted members must have signed.
+///
+/// Proofs are not part of the credential digest, so adding a proof later keeps
+/// existing holder authorizations valid.
+#[serde_as]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MultiSignerCredential {
+    pub version: ProtocolV1,
+    pub credential: Credential,
+    pub proofs: Vec<MultiSignerProof>,
+}
+
+impl MultiSignerCredential {
+    /// Add the proofs of another finalization of the same credential.
+    ///
+    /// Proofs already present are not repeated. Fails with
+    /// [`CredentialsError::MultiSignerCredentialMismatch`] when `other` carries
+    /// a different credential payload.
+    pub fn merge(&mut self, other: MultiSignerCredential) -> Result<(), CredentialsError> {
+        if other.credential != self.credential {
+            return Err(CredentialsError::MultiSignerCredentialMismatch);
+        }
+
+        for proof in other.proofs {
+            if !self.proofs.contains(&proof) {
+                self.proofs.push(proof);
+            }
+        }
+
+        Ok(())
+    }
+}
+
+/// One member issuer's proof over a multi-signer credential payload.
+#[serde_as]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MultiSignerProof {
+    /// Member issuer that made this signature.
+    pub issuer_id_pubkey: IssuerId,
+    /// PBRSA credential signature bytes under the member's issuance key.
+    ///
+    /// Serializes as unpadded URL-safe base64.
+    #[serde_as(as = "Base64UrlUnpadded")]
+    pub signature: PbrsaSignature,
+}
+
+/// Response produced by a member issuer when issuing under a multi-signer group id.
+///
+/// The blind signature binds `group_id` and `info`; `issuer_id` names the member
+/// issuer whose issuance key made it.
+#[serde_as]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MultiSignerIssuanceResponse {
+    pub version: ProtocolV1,
+    pub group_id: IssuerId,
+    pub issuer_id: IssuerId,
+    pub info: Value,
+    /// PBRSA blind signature bytes returned by the member issuer.
+    ///
+    /// Serializes as unpadded URL-safe base64.
+    #[serde_as(as = "Base64UrlUnpadded")]
+    pub blind_signature: PbrsaBlindSignature,
+}
+
 #[cfg(test)]
 mod tests {
     use blind_rsa_signatures::Signature as PbrsaSignature;
