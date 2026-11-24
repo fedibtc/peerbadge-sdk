@@ -44,6 +44,19 @@ future.
 `IssuerContext.importSecretKey()` and `HolderContext.importSecretKey()` can
 throw when stored secret material is malformed.
 
+`VerificationContext.addMultiSignerGroup()` can throw when the group id is not
+a valid Nostr public key, a member authority does not verify, or the group is
+inconsistent (threshold of 0 or above the member count, a member listed twice,
+members sharing an issuance key, or a member id equal to the group id).
+
+`VerificationContext.verifyMultiSignerCredential()` and
+`verifyMultiSignerCredentialAuthorization()` can throw when no group is
+configured for the credential's group id or fewer than the threshold of trusted
+members signed validly, and for the same holder authorization failures as
+`verifyCredentialAuthorization()`.
+
+`mergeMultiSignerCredentials()` throws when the two credential payloads differ.
+
 ## Recommended Pattern
 
 Keep protocol failures separate from application transport failures:

@@ -78,7 +78,18 @@ The high-level API is organized around runtime contexts and wire structs:
 - `VerificationContext`: trust signed issuer authorities, verify signed revocations, verify finalized credentials, and verify holder authorizations
 - `IssuerAuthority`, `IssuanceRequest`, `IssuanceResponse`, `SignedCredential`, `HolderAuthorization`, and `SignedRevocation`: serde-compatible protocol wire objects
 
-All fallible operations return `Result<_, CredentialsError>`. Important verification failures include `UnknownIssuer`, `CredentialRevoked`, `IssuerIdMismatch`, `InfoMismatch`, `HolderIdMismatch`, `AuthorizationCredentialDigestMismatch`, `AuthorizationNotYetValid`, and `VerificationFailed`.
+Multi-signer credentials are ordinary credentials issued under a group id and signed by several member issuers:
+
+- `IssuerContext::issue_multi_signer_credential`: sign as one member of a group, binding the group id instead of the member's own id
+- `MultiSignerPendingIssuance`: holder state for one member's signature; `finalize` returns a `MultiSignerCredential` carrying that member's proof
+- `MultiSignerCredential::merge`: combine member proofs over the same credential
+- `HolderContext::authorize_multi_signer_credential_use`: authorize a subject key; the digest is the ordinary `Credential::digest`
+- `VerificationContext::add_multi_signer_group`, `valid_multi_signer_members`, `verify_multi_signer_credential`, and `verify_multi_signer_credential_authorization`: trust a group's member authorities with a threshold and verify against it
+- `MultiSignerIssuanceResponse`, `MultiSignerCredential`, and `MultiSignerProof`: serde-compatible wire objects
+
+Revocation of multi-signer credentials is not defined yet.
+
+All fallible operations return `Result<_, CredentialsError>`. Important verification failures include `UnknownIssuer`, `CredentialRevoked`, `IssuerIdMismatch`, `InfoMismatch`, `HolderIdMismatch`, `AuthorizationCredentialDigestMismatch`, `AuthorizationNotYetValid`, `MultiSignerThresholdNotMet`, and `VerificationFailed`.
 
 ## Credential Flow
 

@@ -10,7 +10,7 @@ use std::str::FromStr;
 use crate::{
     canonical::canonicalize_holder_authorization,
     types::{
-        verify_identity_signature_with_key, CredentialDigest, HolderId, ProtocolV1,
+        verify_identity_signature_with_key, Credential, CredentialDigest, HolderId, ProtocolV1,
         SchnorrSignatureProof, SignedCredential, Timestamp,
     },
     CredentialsError,
@@ -53,7 +53,17 @@ impl HolderAuthorizationRequest {
         issued_at: Timestamp,
         credential: &SignedCredential,
     ) -> Result<HolderAuthorizationStatement, CredentialsError> {
-        let credential_digest = CredentialDigest(credential.credential.digest()?);
+        self.into_statement_for_payload(holder_id_pubkey, issued_at, &credential.credential)
+    }
+
+    /// Build the statement for a credential payload, whatever proofs it carries.
+    pub(crate) fn into_statement_for_payload(
+        self,
+        holder_id_pubkey: HolderId,
+        issued_at: Timestamp,
+        credential: &Credential,
+    ) -> Result<HolderAuthorizationStatement, CredentialsError> {
+        let credential_digest = CredentialDigest(credential.digest()?);
 
         Ok(HolderAuthorizationStatement {
             holder_id_pubkey,

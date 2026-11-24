@@ -22,4 +22,6 @@ pub use types::*;
 pub use verifier::*;
 
 #[cfg(test)]
+mod multi_signer_tests;
+#[cfg(test)]
 mod tests;

@@ -152,6 +152,43 @@ export interface PendingIssuanceResult {
   /** Local holder state required to finalize the issuer response. */
   readonly pending: PendingIssuance;
 }
+
+/** Member issuer response when issuing under a multi-signer group id. */
+export interface MultiSignerIssuanceResponse {
+  readonly version: 1;
+  /** Nostr public key the credential is issued under. */
+  readonly group_id: string;
+  /** Nostr public key identifying the member issuer that signed the response. */
+  readonly issuer_id: string;
+  /** Issuer-visible credential information bound into the blind signature. */
+  readonly info: JsonValue;
+  /** Unpadded URL-safe base64 encoded PBRSA blind signature. */
+  readonly blind_signature: string;
+}
+
+/** Credential issued under a multi-signer group id, with one proof per member issuer that signed. */
+export interface MultiSignerCredential {
+  readonly version: 1;
+  /** Ordinary credential payload; `issuer_id_pubkey` is the group id. */
+  readonly credential: Credential;
+  readonly proofs: readonly MultiSignerProof[];
+}
+
+/** One member issuer's proof over a multi-signer credential payload. */
+export interface MultiSignerProof {
+  /** Nostr public key identifying the member issuer that made this signature. */
+  readonly issuer_id_pubkey: string;
+  /** Unpadded URL-safe base64 encoded PBRSA credential signature. */
+  readonly signature: string;
+}
+
+/** Result of creating a holder issuance request for one multi-signer group member. */
+export interface MultiSignerPendingIssuanceResult {
+  /** Request to send to the member issuer. */
+  readonly request: IssuanceRequest;
+  /** Local holder state required to finalize the member issuer's response. */
+  readonly pending: MultiSignerPendingIssuance;
+}
 "#;
 
 fn from_js<T: DeserializeOwned>(value: JsValue) -> Result<T, JsError> {
@@ -171,6 +208,24 @@ fn current_unix_timestamp() -> Result<u64, JsError> {
     }
 
     Ok(seconds as u64)
+}
+
+fn parse_group_id(group_id: &str) -> Result<protocol::IssuerId, JsError> {
+    group_id
+        .parse()
+        .map_err(|_| JsError::new("group_id is not a valid Nostr public key"))
+}
+
+fn request_result(
+    request: &protocol::IssuanceRequest,
+    pending: JsValue,
+) -> Result<JsValue, JsError> {
+    let result = js_sys::Object::new();
+    js_sys::Reflect::set(&result, &JsValue::from_str("request"), &to_js(request)?)
+        .map_err(reflect_error)?;
+    js_sys::Reflect::set(&result, &JsValue::from_str("pending"), &pending)
+        .map_err(reflect_error)?;
+    Ok(result.into())
 }
 
 fn reflect_error(error: JsValue) -> JsError {
@@ -252,6 +307,29 @@ impl IssuerContext {
         to_js(&self.inner.issue_credential(info, &request)?)
     }
 
+    /// Issue a blind signature response as one member of a multi-signer group.
+    ///
+    /// The signature binds `groupId` instead of this issuer's own id.
+    #[wasm_bindgen(
+        js_name = issueMultiSignerCredential,
+        unchecked_return_type = "MultiSignerIssuanceResponse"
+    )]
+    pub fn issue_multi_signer_credential(
+        &self,
+        group_id: String,
+        #[wasm_bindgen(unchecked_param_type = "JsonValue")] info: JsValue,
+        #[wasm_bindgen(unchecked_param_type = "IssuanceRequest")] request: JsValue,
+    ) -> Result<JsValue, JsError> {
+        let group_id = parse_group_id(&group_id)?;
+        let info: serde_json::Value = from_js(info)?;
+        let request: protocol::IssuanceRequest = from_js(request)?;
+        to_js(
+            &self
+                .inner
+                .issue_multi_signer_credential(group_id, info, &request)?,
+        )
+    }
+
     /// Build and sign this issuer's public authority with its revocation locations.
     #[wasm_bindgen(js_name = issuerAuthority, unchecked_return_type = "IssuerAuthority")]
     pub fn issuer_authority(
@@ -325,6 +403,25 @@ impl HolderContext {
             current_unix_timestamp()?,
         )?)
     }
+
+    /// Create a signed holder authorization for an auxiliary subject key and a multi-signer credential.
+    #[wasm_bindgen(
+        js_name = authorizeMultiSignerCredentialUse,
+        unchecked_return_type = "HolderAuthorization"
+    )]
+    pub fn authorize_multi_signer_credential_use(
+        &self,
+        #[wasm_bindgen(unchecked_param_type = "HolderAuthorizationRequest")] request: JsValue,
+        #[wasm_bindgen(unchecked_param_type = "MultiSignerCredential")] credential: JsValue,
+    ) -> Result<JsValue, JsError> {
+        let request: protocol::HolderAuthorizationRequest = from_js(request)?;
+        let credential: protocol::MultiSignerCredential = from_js(credential)?;
+        to_js(&self.inner.authorize_multi_signer_credential_use_at_time(
+            request,
+            &credential,
+            current_unix_timestamp()?,
+        )?)
+    }
 }
 
 #[wasm_bindgen]
@@ -352,16 +449,7 @@ impl PendingIssuance {
             blind_msg,
         )?;
 
-        let result = js_sys::Object::new();
-        js_sys::Reflect::set(&result, &JsValue::from_str("request"), &to_js(&request)?)
-            .map_err(reflect_error)?;
-        js_sys::Reflect::set(
-            &result,
-            &JsValue::from_str("pending"),
-            &JsValue::from(PendingIssuance { inner: pending }),
-        )
-        .map_err(reflect_error)?;
-        Ok(result.into())
+        request_result(&request, PendingIssuance { inner: pending }.into())
     }
 
     /// Export this pending issuance state as a JSON string for application storage.
@@ -396,6 +484,98 @@ impl PendingIssuance {
                 .finalize(&issuer_authority.issuer.issuance_key, &response)?,
         )
     }
+}
+
+#[wasm_bindgen]
+/// Holder-side pending state required to finalize one multi-signer group member's response.
+pub struct MultiSignerPendingIssuance {
+    inner: protocol::MultiSignerPendingIssuance,
+}
+
+#[wasm_bindgen]
+impl MultiSignerPendingIssuance {
+    /// Create a blinded issuance request for one member issuer of a multi-signer group.
+    ///
+    /// Create one request per member; each is blinded under that member's issuance key.
+    #[wasm_bindgen(
+        js_name = createRequest,
+        unchecked_return_type = "MultiSignerPendingIssuanceResult"
+    )]
+    pub fn create_request(
+        group_id: String,
+        #[wasm_bindgen(unchecked_param_type = "IssuerAuthority")] member_authority: JsValue,
+        #[wasm_bindgen(unchecked_param_type = "JsonValue")] info: JsValue,
+        #[wasm_bindgen(unchecked_param_type = "JsonValue")] blind_msg: JsValue,
+    ) -> Result<JsValue, JsError> {
+        let group_id = parse_group_id(&group_id)?;
+        let member_authority: protocol::IssuerAuthority = from_js(member_authority)?;
+        let info: serde_json::Value = from_js(info)?;
+        let blind_msg: serde_json::Value = from_js(blind_msg)?;
+        let (request, pending) = protocol::MultiSignerPendingIssuance::create_request(
+            &member_authority.issuer.issuance_key,
+            group_id,
+            member_authority.issuer.issuer_id_pubkey,
+            info,
+            blind_msg,
+        )?;
+
+        request_result(
+            &request,
+            MultiSignerPendingIssuance { inner: pending }.into(),
+        )
+    }
+
+    /// Export this pending state as a JSON string for application storage.
+    #[wasm_bindgen(js_name = exportState)]
+    pub fn export_state(&self) -> Result<String, JsError> {
+        Ok(self.inner.export_state()?)
+    }
+
+    /// Import pending state previously returned by `exportState`.
+    #[wasm_bindgen(js_name = importState)]
+    pub fn import_state(state: String) -> Result<MultiSignerPendingIssuance, JsError> {
+        Ok(Self {
+            inner: protocol::MultiSignerPendingIssuance::import_state(&state)?,
+        })
+    }
+
+    /// Finalize a member issuer's response into a multi-signer credential carrying that member's proof.
+    ///
+    /// Combine credentials finalized for several members with `mergeMultiSignerCredentials`.
+    #[wasm_bindgen(js_name = finalize, unchecked_return_type = "MultiSignerCredential")]
+    pub fn finalize(
+        self,
+        #[wasm_bindgen(unchecked_param_type = "IssuerAuthority")] member_authority: JsValue,
+        #[wasm_bindgen(unchecked_param_type = "MultiSignerIssuanceResponse")] response: JsValue,
+    ) -> Result<JsValue, JsError> {
+        let member_authority: protocol::IssuerAuthority = from_js(member_authority)?;
+        let response: protocol::MultiSignerIssuanceResponse = from_js(response)?;
+        if member_authority.issuer.issuer_id_pubkey != response.issuer_id {
+            return Err(protocol::CredentialsError::IssuerIdMismatch.into());
+        }
+        to_js(
+            &self
+                .inner
+                .finalize(&member_authority.issuer.issuance_key, &response)?,
+        )
+    }
+}
+
+/// Combine the proofs of two finalizations of the same multi-signer credential.
+///
+/// Throws when the credential payloads differ. Proofs already present are not repeated.
+#[wasm_bindgen(
+    js_name = mergeMultiSignerCredentials,
+    unchecked_return_type = "MultiSignerCredential"
+)]
+pub fn merge_multi_signer_credentials(
+    #[wasm_bindgen(unchecked_param_type = "MultiSignerCredential")] credential: JsValue,
+    #[wasm_bindgen(unchecked_param_type = "MultiSignerCredential")] other: JsValue,
+) -> Result<JsValue, JsError> {
+    let mut credential: protocol::MultiSignerCredential = from_js(credential)?;
+    let other: protocol::MultiSignerCredential = from_js(other)?;
+    credential.merge(other)?;
+    to_js(&credential)
 }
 
 #[wasm_bindgen]
@@ -460,6 +640,66 @@ impl VerificationContext {
             &authorization,
             current_unix_timestamp()?,
         )?;
+        Ok(true)
+    }
+
+    /// Trust a multi-signer group: its member issuer authorities and how many distinct members must sign.
+    ///
+    /// Members are trusted for this group only, not as single issuers.
+    #[wasm_bindgen(js_name = addMultiSignerGroup)]
+    pub fn add_multi_signer_group(
+        &mut self,
+        group_id: String,
+        #[wasm_bindgen(unchecked_param_type = "readonly IssuerAuthority[]")]
+        member_authorities: JsValue,
+        threshold: u32,
+    ) -> Result<(), JsError> {
+        let group_id = parse_group_id(&group_id)?;
+        let member_authorities: Vec<protocol::IssuerAuthority> = from_js(member_authorities)?;
+        Ok(self
+            .inner
+            .add_multi_signer_group(group_id, &member_authorities, threshold as usize)?)
+    }
+
+    /// Return the trusted group members whose signatures on a multi-signer credential are valid.
+    ///
+    /// Applies no threshold; unknown members and invalid signatures are ignored.
+    #[wasm_bindgen(js_name = validMultiSignerMembers, unchecked_return_type = "string[]")]
+    pub fn valid_multi_signer_members(
+        &self,
+        #[wasm_bindgen(unchecked_param_type = "MultiSignerCredential")] credential: JsValue,
+    ) -> Result<JsValue, JsError> {
+        let credential: protocol::MultiSignerCredential = from_js(credential)?;
+        to_js(&self.inner.valid_multi_signer_members(&credential)?)
+    }
+
+    /// Verify a multi-signer credential against its trusted group and threshold.
+    #[wasm_bindgen(js_name = verifyMultiSignerCredential)]
+    pub fn verify_multi_signer_credential(
+        &self,
+        #[wasm_bindgen(unchecked_param_type = "MultiSignerCredential")] credential: JsValue,
+    ) -> Result<bool, JsError> {
+        let credential: protocol::MultiSignerCredential = from_js(credential)?;
+        self.inner.verify_multi_signer_credential(&credential)?;
+        Ok(true)
+    }
+
+    /// Verify a multi-signer credential and holder authorization.
+    #[wasm_bindgen(js_name = verifyMultiSignerCredentialAuthorization)]
+    pub fn verify_multi_signer_credential_authorization(
+        &self,
+        #[wasm_bindgen(unchecked_param_type = "MultiSignerCredential")] credential: JsValue,
+        #[wasm_bindgen(unchecked_param_type = "HolderAuthorization")] authorization: JsValue,
+    ) -> Result<bool, JsError> {
+        let credential: protocol::MultiSignerCredential = from_js(credential)?;
+        let authorization: protocol::HolderAuthorization = from_js(authorization)?;
+
+        self.inner
+            .verify_multi_signer_credential_authorization_at_time(
+                &credential,
+                &authorization,
+                current_unix_timestamp()?,
+            )?;
         Ok(true)
     }
 }

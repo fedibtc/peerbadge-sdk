@@ -32,6 +32,10 @@ issuer, holder, and verifier.
   application subject key use a selected credential.
 - `SignedRevocation`: issuer-signed credential digest used by verifiers to reject
   revoked credentials.
+- `MultiSignerIssuanceResponse`: a member issuer's blind signature response when
+  issuing under a multi-signer group id.
+- `MultiSignerCredential`: an ordinary credential issued under a group id, plus
+  one proof per member issuer that signed it.
 
 ## SDK Boundary
 
